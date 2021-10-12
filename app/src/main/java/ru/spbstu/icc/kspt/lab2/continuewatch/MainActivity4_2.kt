@@ -1,6 +1,7 @@
 package ru.spbstu.icc.kspt.lab2.continuewatch
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
@@ -10,14 +11,16 @@ class MainActivity1 : AppCompatActivity() {
     private lateinit var textSecondsElapsed: TextView
 
     private var backgroundThread = Thread {
-        while (true) {
-            Thread.sleep(1000)
-            if (isCounting) {
-                textSecondsElapsed.post {
-                    textSecondsElapsed.text = ("Seconds elapsed: " + ++secondsElapsed)
+        try {
+            while (true) {
+                Thread.sleep(1000)
+                if (isCounting) {
+                    textSecondsElapsed.post {
+                        textSecondsElapsed.text = ("Seconds elapsed: " + ++secondsElapsed)
+                    }
                 }
             }
-        }
+        } catch (E: InterruptedException) { Log.e("Exception", "InterruptedException") }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +38,11 @@ class MainActivity1 : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         isCounting = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        backgroundThread.interrupt()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

@@ -2,6 +2,7 @@ package ru.spbstu.icc.kspt.lab2.continuewatch
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
@@ -12,14 +13,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var preference: SharedPreferences
 
     private var backgroundThread = Thread {
-        while (true) {
-            Thread.sleep(1000)
-            if (isCounting) {
-                textSecondsElapsed.post {
-                    textSecondsElapsed.text = ("Seconds elapsed: " + ++secondsElapsed)
+        try {
+            while (true) {
+                Thread.sleep(1000)
+                if (isCounting) {
+                    textSecondsElapsed.post {
+                        textSecondsElapsed.text = ("Seconds elapsed: " + ++secondsElapsed)
+                    }
                 }
             }
-        }
+        } catch (E: InterruptedException) { Log.e("Exception", "InterruptedException") }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +46,11 @@ class MainActivity : AppCompatActivity() {
             putInt(getString(R.string.secondsElapsed), secondsElapsed)
             apply()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        backgroundThread.interrupt()
     }
 
 }
